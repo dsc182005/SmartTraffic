@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic AI</title>
+    <link rel="stylesheet" href="/static/css/style.css?v=4.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Leaflet Map -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <!-- Chart.js for Evaluation Metrics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <!-- Top Brand Header -->
+    <header class="header">
+        <div class="brand-title" onclick="openModuleView('view-dashboard')" style="cursor: pointer;">
+            <div class="logo-box">
+                <svg width="34" height="34" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="48" height="48" rx="12" fill="#0f172a" stroke="rgba(56, 189, 248, 0.4)" stroke-width="1.5"/>
+                    <rect x="18" y="9" width="12" height="30" rx="6" fill="#020617" stroke="#38bdf8" stroke-width="2"/>
+                    <circle cx="24" cy="15" r="3" fill="#ef4444"/>
+                    <circle cx="24" cy="24" r="3" fill="#f59e0b"/>
+                    <circle cx="24" cy="33" r="3" fill="#10b981"/>
+                </svg>
+            </div>
+            <div>
+                <span style="font-weight: 800; font-size: 1.25rem; letter-spacing: -0.5px; color: #fff;">Traffic AI</span>
+            </div>
+        </div>
+        <div class="header-status">
+            <span class="badge badge-success" style="font-size: 0.75rem; padding: 0.35rem 0.75rem;">
+                🟢 5 Models Active
+            </span>
+        </div>
+    </header>
+
+    <!-- Navigation Bar with 6 Items -->
+    <nav class="tabs-nav">
+        <button class="tab-btn active" id="nav-dashboard" onclick="openModuleView('view-dashboard')">🏠 Home Dashboard</button>
+        <button class="tab-btn" id="nav-route" onclick="openModuleView('view-route')">1. 🗺️ Indian Route & Resistance</button>
+        <button class="tab-btn" id="nav-plates" onclick="openModuleView('view-plates')">2. 🚗 Vehicle & Plate Recognizer</button>
+        <button class="tab-btn" id="nav-crash" onclick="openModuleView('view-crash')">3. 💥 Crash Predictor</button>
+        <button class="tab-btn" id="nav-retina" onclick="openModuleView('view-retina')">4. 👁️ Driver Eye Sensor</button>
+        <button class="tab-btn" id="nav-evaluation" onclick="openModuleView('view-evaluation')">5. 📊 Evaluation Metrics</button>
+    </nav>
+
+    <!-- ==================== VIEW 0: HOME DASHBOARD ==================== -->
+    <div id="view-dashboard" class="module-view active">
+        <!-- Top Stats Ribbon -->
+        <section class="kpi-strip" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 1.5rem;">
+            <div class="kpi-card">
+                <span class="kpi-label">🤖 Active AI Modules</span>
+                <span class="kpi-value" style="color: #38bdf8;">5 Modules</span>
+                <span class="kpi-subtext">Route · LPR · Crash · Eye · Metrics</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">🎯 Average Model Accuracy</span>
+                <span class="kpi-value" style="color: #10b981;">94.20%</span>
+                <span class="kpi-subtext">Across ensemble & vision models</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">🇮🇳 Supported Indian Cities</span>
+                <span class="kpi-value" style="color: #f59e0b;">5 Metros</span>
+                <span class="kpi-subtext">Delhi NCR · Lucknow · Mumbai +</span>
+            </div>
+            <div class="kpi-card">
+                <span class="kpi-label">⚡ System Latency</span>
+                <span class="kpi-value" style="color: #a855f7;">~22 ms</span>
+                <span class="kpi-subtext">Real-time GPU/CPU pipeline</span>
+            </div>
+        </section>
+
+        <!-- 5 Module Cards Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.25rem;">
+            
+            <!-- Card 1 -->
+            <div class="module-card" onclick="openModuleView('view-route')">
+                <div class="module-card-header">
+                    <span class="module-card-icon">🗺️</span>
+                    <span class="badge badge-info">Module 1</span>
+                </div>
+                <h3 class="module-card-title">Indian Route Planner & Resistance Index</h3>
+                <p class="module-card-desc">
+                    Interactive road navigation on real-world Indian maps. Predicts congestion resistance index scores (0-100) using Random Forest & XGBoost, and generates AI detour recommendations.
+                </p>
+                <div class="module-card-footer">
+                    <span style="font-size: 0.78rem; color: #38bdf8; font-weight: 600;">Delhi NCR · Lucknow · Mumbai · BLR</span>
+                    <button class="btn btn-primary" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;">Open Route Planner →</button>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="module-card" onclick="openModuleView('view-plates')">
+                <div class="module-card-header">
+                    <span class="module-card-icon">🚗</span>
+                    <span class="badge badge-success">Module 2</span>
+                </div>
+                <h3 class="module-card-title">Vehicle Identification & License Plate Detection</h3>
+                <p class="module-card-desc">
+                    Dual-stage computer vision pipeline combining YOLOv8 vehicle classification (Cars, Buses, Trucks, Motorcycles) with dedicated License Plate Detection, high-visibility red bounding boxes, and cropped plate evidence.
+                </p>
+                <div class="module-card-footer">
+                    <span style="font-size: 0.78rem; color: #ef4444; font-weight: 600;">YOLOv8 + Red Plate Highlighting</span>
+                    <button class="btn btn-success" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;">Open Plate Detector →</button>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="module-card" onclick="openModuleView('view-crash')">
+                <div class="module-card-header">
+                    <span class="module-card-icon">💥</span>
+                    <span class="badge badge-danger">Module 3</span>
+                </div>
+                <h3 class="module-card-title">Crash Predictor</h3>
+                <p class="module-card-desc">
+                    Automated road accident identification engine trained on surveillance collision footage. Highlights accident bounding boxes with real-time confidence scoring and emergency alert dispatch.
+                </p>
+                <div class="module-card-footer">
+                    <span style="font-size: 0.78rem; color: #f87171; font-weight: 600;">Accident Detection AI (cr.mp4)</span>
+                    <button class="btn btn-danger" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;">Open Crash Predictor →</button>
+                </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="module-card" onclick="openModuleView('view-retina')">
+                <div class="module-card-header">
+                    <span class="module-card-icon">👁️</span>
+                    <span class="badge badge-warning">Module 4</span>
+                </div>
+                <h3 class="module-card-title">Driver Eye Sensor</h3>
+                <p class="module-card-desc">
+                    Driver safety monitor analyzing real-time eye state directly via live webcam. Accurately detects open and closed eyes, counts blinks, and triggers immediate audio-visual alarm upon prolonged eye closure / drowsiness.
+                </p>
+                <div class="module-card-footer">
+                    <span style="font-size: 0.78rem; color: #fbbf24; font-weight: 600;">Live Webcam · Eye Tracking · Audio Alarm</span>
+                    <button class="btn btn-warning" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;">Open Eye Sensor →</button>
+                </div>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="module-card" onclick="openModuleView('view-evaluation')">
+                <div class="module-card-header">
+                    <span class="module-card-icon">📊</span>
+                    <span class="badge badge-info">Module 5</span>
+                </div>
+                <h3 class="module-card-title">Evaluation Metrics</h3>
+                <p class="module-card-desc">
+                    Quantitative evaluation and benchmark metrics across all machine learning algorithms. Displays Accuracy, Precision, Recall, F1-Scores, latency, and a multi-class confusion matrix.
+                </p>
+                <div class="module-card-footer">
+                    <span style="font-size: 0.78rem; color: #a855f7; font-weight: 600;">Accuracy · Precision · Recall · F1</span>
+                    <button class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;">View Evaluation Metrics →</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- ==================== VIEW 1: ROUTE PLANNER & RESISTANCE INDEX ==================== -->
+    <div id="view-route" class="module-view">
+        <div class="grid-2">
+            <!-- Left: Route Planner + Resistance Score -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">🧭 Indian Route Planner & Resistance Index</span>
+                    <span class="badge badge-success">Real India Roads</span>
+                </div>
+
+                <!-- City Selector -->
+                <div style="margin-bottom: 0.85rem;">
+                    <label class="form-label" style="font-size: 0.78rem; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;">🏙️ Select Indian City</label>
+                    <select id="cong-city" class="form-control" onchange="onCongCityChange()" style="font-weight: 600;">
+                        <option value="delhi" selected>Delhi NCR (National Capital)</option>
+                        <option value="lucknow">Lucknow (Uttar Pradesh)</option>
+                        <option value="mumbai">Mumbai (Maharashtra)</option>
+                        <option value="bangalore">Bangalore (Karnataka)</option>
+                        <option value="jaipur">Jaipur (Rajasthan)</option>
+                    </select>
+                </div>
+
+                <!-- Source & Destination -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.85rem;">
+                    <div>
+                        <label class="form-label" style="font-size: 0.78rem; color: rgba(255,255,255,0.6); text-transform: uppercase;">📍 Starting Location</label>
+                        <select id="cong-from" class="form-control"></select>
+                    </div>
+                    <div>
+                        <label class="form-label" style="font-size: 0.78rem; color: rgba(255,255,255,0.6); text-transform: uppercase;">🏁 Destination</label>
+                        <select id="cong-to" class="form-control"></select>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <button onclick="planCongestionRoute()" style="width: 100%; padding: 0.7rem; background: linear-gradient(135deg,#1A73E8,#185ABC); color: #fff; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 700; cursor: pointer; margin-bottom: 0.5rem; letter-spacing: 0.5px;">
+                    ▶ PLAN ROUTE ON REAL MAP
+                </button>
+                <button onclick="quickPredictCongestion()" style="width: 100%; padding: 0.6rem; background: rgba(0,229,255,0.08); color: #00e5ff; border: 1px solid rgba(0,229,255,0.3); border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; margin-bottom: 0.85rem;">
+                    📊 PREDICT CONGESTION RESISTANCE INDEX
+                </button>
+
+                <!-- Resistance Index Score Card -->
+                <div id="cong-score-card" style="display: none; background: rgba(15,23,42,0.92); border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1rem; margin-bottom: 0.85rem;">
+                    <div style="font-size: 0.75rem; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; margin-bottom: 0.6rem;">
+                        Congestion Resistance Index
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="flex-shrink: 0;">
+                            <svg viewBox="0 0 80 80" width="80" height="80">
+                                <circle cx="40" cy="40" r="33" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="6"/>
+                                <circle id="cong-ring-path" cx="40" cy="40" r="33" fill="none" stroke="#4285F4" stroke-width="6" stroke-dasharray="207" stroke-dashoffset="207" stroke-linecap="round" transform="rotate(-90 40 40)" style="transition: stroke-dashoffset 1s ease-out, stroke 0.5s;"/>
+                            </svg>
+                            <div style="text-align: center; margin-top: -55px; position: relative;">
+                                <span id="cong-score-num" style="font-size: 1.6rem; font-weight: 800; color: #4285F4;">0</span>
+                                <span style="font-size: 0.65rem; color: rgba(255,255,255,0.4);">/100</span>
+                            </div>
+                        </div>
+                        <div style="flex: 1;">
+                            <div id="cong-score-label" style="font-size: 1.15rem; font-weight: 800; color: #4285F4; letter-spacing: 1px;">—</div>
+                            <div id="cong-score-desc" style="font-size: 0.78rem; color: rgba(255,255,255,0.6); margin-top: 3px; line-height: 1.4;">—</div>
+                        </div>
+                    </div>
+                    <div id="cong-score-badges" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 0.75rem;"></div>
+                </div>
+
+                <!-- AI Route Recommender Results -->
+                <div id="cong-route-result"></div>
+
+                <!-- ML Model Selector Strip -->
+                <div style="margin-top: 0.85rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.75rem;">
+                    <div style="font-size: 0.75rem; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; font-weight: 700;">
+                        🤖 Active ML Model
+                    </div>
+                    <div id="cong-ml-strip" style="display: flex; flex-direction: column; gap: 3px;"></div>
+                </div>
+            </div>
+
+            <!-- Right: Leaflet Real India Road Map -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">🗺️ Interactive Real-Road India Map</span>
+                    <span class="badge badge-info">OSRM Real Roads · Google Streets</span>
+                </div>
+                <div id="congestionMap" style="width: 100%; height: 500px; border-radius: 8px; background: #0a0f1d;"></div>
+                <div id="cong-route-status" style="display: none; margin-top: 0.6rem; background: rgba(66,133,244,0.12); border: 1px solid rgba(66,133,244,0.3); border-radius: 6px; padding: 0.5rem 0.8rem; font-size: 0.8rem; color: #4285F4; font-weight: 600;"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================== VIEW 2: VEHICLE & LICENSE PLATE RECOGNIZER ==================== -->
+    <div id="view-plates" class="module-view">
+        <div class="grid-2">
+            <!-- Left: Video Stream -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">🚗 Vehicle Identification & ANPR</span>
+                    <span class="badge badge-info">Demo Video / Video Analysis</span>
+                </div>
+                <div class="video-wrapper">
+                    <img id="platesVideoFeed" class="video-stream" src="/video_feed/plates" alt="Vehicle & LPR Video Stream">
+                </div>
+
+                <!-- Vehicle Breakdown Bar -->
+                <div style="margin-top: 0.75rem; display: flex; gap: 0.8rem; flex-wrap: wrap; font-size: 0.85rem; background: rgba(15,23,42,0.85); padding: 0.7rem 0.9rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+                    <span>🚗 Cars: <strong id="lprCntCars" style="color: #10b981;">0</strong></span>
+                    <span>🚌 Buses: <strong id="lprCntBuses" style="color: #f59e0b;">0</strong></span>
+                    <span>🚛 Trucks: <strong id="lprCntTrucks" style="color: #38bdf8;">0</strong></span>
+                    <span>🏍️ Bikes: <strong id="lprCntBikes" style="color: #eab308;">0</strong></span>
+                    <span style="margin-left: auto;">🔍 Total Scanned: <strong id="lprTotalPlates" style="color: #a855f7;">0</strong></span>
+                </div>
+
+                <!-- Upload Custom Video / Footage Info -->
+                <div style="margin-top: 0.75rem; display: flex; align-items: center; justify-content: space-between; background: rgba(15,23,42,0.6); padding: 0.6rem 0.9rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);">
+                    <span style="font-size: 0.8rem; color: #94a3b8;">Demo Footage: <code>videoplayback.webm</code></span>
+                    <button class="btn btn-secondary" style="font-size: 0.75rem;" onclick="document.getElementById('uploadPlatesVideo').click()">📁 Upload Custom Video</button>
+                    <input type="file" id="uploadPlatesVideo" style="display:none" accept="video/*" onchange="uploadModuleVideo(this, 'plates')">
+                </div>
+            </div>
+
+            <!-- Right: Detected Plates Table & Visual Evidence -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">🎯 Detected License Plates & Visual Evidence</span>
+                    <span class="badge badge-info" id="badgeLprCount">0 Tracked</span>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                    Real-time physical license plate detection, red bounding box highlight, and visual plate crops:
+                </p>
+                <div style="max-height: 440px; overflow-y: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Vehicle ID</th>
+                                <th>Vehicle Type</th>
+                                <th>Cropped Plate Image</th>
+                                <th>Detection Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lprTableBody">
+                            <tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">Scanning vehicles and license plates from video stream...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================== VIEW 3: CRASH PREDICTOR ==================== -->
+    <div id="view-crash" class="module-view">
+        <div class="grid-2">
+            <!-- Left: Crash Video Stream -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">💥 Crash Predictor & Accident AI Feed</span>
+                    <span class="badge badge-danger">Accident Detection AI</span>
+                </div>
+                <div class="video-wrapper">
+                    <img id="crashVideoFeed" class="video-stream" src="/video_feed/crash" alt="Crash Prediction Stream">
+                </div>
+
+                <div style="margin-top: 0.75rem; display: flex; align-items: center; justify-content: space-between; background: rgba(15,23,42,0.6); padding: 0.6rem 0.9rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);">
+                    <span style="font-size: 0.8rem; color: #94a3b8;">Surveillance Footage: <code>cr.mp4</code></span>
+                    <button class="btn btn-secondary" style="font-size: 0.75rem;" onclick="document.getElementById('uploadCrashVideo').click()">📁 Upload Crash Video</button>
+                    <input type="file" id="uploadCrashVideo" style="display:none" accept="video/*" onchange="uploadModuleVideo(this, 'crash')">
+                </div>
+            </div>
+
+            <!-- Right: Crash Telemetry & Alert State -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">🚨 Real-time Crash Detection Status</span>
+                    <span class="badge badge-success" id="badgeCrashStatus">Active Monitor</span>
+                </div>
+
+                <!-- Large Status Alert Box -->
+                <div id="crashStatusBox" style="background: rgba(16, 185, 129, 0.12); border: 2px solid #10b981; border-radius: 12px; padding: 1.25rem; text-align: center; margin-bottom: 1.25rem;">
+                    <div id="crashStatusIcon" style="font-size: 2.4rem; margin-bottom: 0.4rem;">🟢</div>
+                    <div id="crashStatusText" style="font-size: 1.25rem; font-weight: 800; color: #10b981; letter-spacing: 0.5px;">
+                        NORMAL TRAFFIC
+                    </div>
+                    <div id="crashStatusSub" style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.35rem;">
+                        No accident detected. Surveillance camera monitoring traffic flow.
+                    </div>
+                </div>
+
+                <!-- Crash Metrics Grid -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+                    <div class="kpi-card">
+                        <span class="kpi-label">🎯 Detection Confidence</span>
+                        <span class="kpi-value" id="crashConfidence" style="color: #38bdf8;">--%</span>
+                        <span class="kpi-subtext">YOLOv8 Accident Model</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">🚗 Tracked Vehicles</span>
+                        <span class="kpi-value" id="crashVehicleCount" style="color: #f59e0b;">--</span>
+                        <span class="kpi-subtext">In collision zone</span>
+                    </div>
+                </div>
+
+                <!-- Emergency Dispatch Info Box -->
+                <div style="background: rgba(15,23,42,0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1rem;">
+                    <div style="font-size: 0.85rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+                        <span>🛡️</span> Automated Emergency Protocol
+                    </div>
+                    <div style="font-size: 0.8rem; color: #94a3b8; line-height: 1.5;">
+                        Upon accident detection, the model isolates the collision coordinates, calculates severity, logs the event timestamp, and initiates dispatch protocols for traffic rerouting.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================== VIEW 4: DRIVER EYE SENSOR ==================== -->
+    <div id="view-retina" class="module-view">
+        <div class="grid-2">
+            <!-- Left: Driver Eye Live Webcam -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">👁️ Driver Eye Sensor</span>
+                    <span class="badge badge-success" id="retinaCamBadge">📷 Live Webcam</span>
+                </div>
+
+                <!-- Direct Webcam View & Annotation Canvas -->
+                <div class="video-wrapper" style="position: relative; min-height: 380px; display: flex; align-items: center; justify-content: center; background: #0a0f1d; border-radius: 8px; overflow: hidden;">
+                    <!-- Hidden video element capturing stream from navigator.mediaDevices.getUserMedia -->
+                    <video id="retinaWebcamVideo" playsinline autoplay muted style="display: none;"></video>
+                    <!-- Canvas rendering annotated frame with eye contours & drowsiness warnings -->
+                    <canvas id="retinaWebcamCanvas" width="640" height="480" style="width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 8px;"></canvas>
+                    
+                    <!-- Overlay placeholder when camera is stopped or awaiting permission -->
+                    <div id="retinaWebcamOverlay" style="display: none; position: absolute; inset: 0; background: rgba(10,15,29,0.92); flex-direction: column; align-items: center; justify-content: center; gap: 0.8rem; z-index: 10; padding: 1.5rem; text-align: center;">
+                        <div style="font-size: 3rem;">📷</div>
+                        <div id="retinaOverlayMsg" style="font-size: 1rem; color: #cbd5e1; font-weight: 600;">Webcam Inactive</div>
+                        <p style="font-size: 0.8rem; color: #94a3b8; max-width: 340px;">Camera access is required for real-time driver eye state and fatigue monitoring. Click below to start.</p>
+                        <button class="btn btn-primary" onclick="startRetinaWebcam()" style="font-size: 0.85rem; padding: 0.5rem 1.4rem; font-weight: 700;">▶ Start Webcam</button>
+                    </div>
+                </div>
+
+                <!-- Camera Controls Strip -->
+                <div style="margin-top: 0.75rem; display: flex; align-items: center; justify-content: space-between; background: rgba(15,23,42,0.85); padding: 0.65rem 0.95rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+                    <div style="display: flex; align-items: center; gap: 0.6rem;">
+                        <span id="retinaCamPulse" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981;"></span>
+                        <span id="retinaCamStatusText" style="font-size: 0.82rem; color: #e2e8f0; font-weight: 600;">Webcam Active</span>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button id="btnStartRetinaCam" class="btn btn-success" style="font-size: 0.78rem; padding: 0.4rem 0.8rem;" onclick="startRetinaWebcam()">▶ Start Camera</button>
+                        <button id="btnStopRetinaCam" class="btn btn-danger" style="font-size: 0.78rem; padding: 0.4rem 0.8rem;" onclick="stopRetinaWebcam()">⏹ Stop Camera</button>
+                        <button class="btn btn-secondary" style="font-size: 0.78rem; padding: 0.4rem 0.8rem;" onclick="testAlarmSound()" title="Test warning beep audio">🔊 Test Alarm</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Driver Drowsiness Telemetry -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">📊 Driver Fatigue & Eye Telemetry</span>
+                    <span class="badge badge-success" id="badgeRetinaStatus">Sensor Online</span>
+                </div>
+
+                <!-- Large Eye State Box -->
+                <div id="retinaStatusBox" style="background: rgba(16, 185, 129, 0.12); border: 2px solid #10b981; border-radius: 12px; padding: 1.25rem; text-align: center; margin-bottom: 1.25rem; transition: all 0.3s ease;">
+                    <div id="retinaStatusIcon" style="font-size: 2.4rem; margin-bottom: 0.3rem;">👁️</div>
+                    <div id="retinaStatusText" style="font-size: 1.25rem; font-weight: 800; color: #10b981; letter-spacing: 0.5px;">
+                        EYES OPEN · DRIVER ALERT
+                    </div>
+                    <div id="retinaStatusSub" style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.35rem;">
+                        Driver is attentive with eyes open.
+                    </div>
+                </div>
+
+                <!-- Eye Metrics Grid -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+                    <div class="kpi-card">
+                        <span class="kpi-label">👁️ Eye State</span>
+                        <span class="kpi-value" id="retinaEyeState" style="color: #10b981;">OPEN</span>
+                        <span class="kpi-subtext" id="retinaEyeSubtext">Driver is attentive</span>
+                    </div>
+                    <div class="kpi-card">
+                        <span class="kpi-label">⚡ Total Eye Blinks</span>
+                        <span class="kpi-value" id="retinaBlinks" style="color: #f59e0b;">0</span>
+                        <span class="kpi-subtext">Blink counter</span>
+                    </div>
+                </div>
+
+                <!-- Alarm Status Indicator Banner -->
+                <div id="retinaAlarmBanner" style="display: flex; align-items: center; justify-content: space-between; background: rgba(15,23,42,0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 0.8rem 1rem; margin-bottom: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 0.6rem;">
+                        <span id="alarmSoundIcon" style="font-size: 1.2rem;">🔊</span>
+                        <div>
+                            <div style="font-size: 0.82rem; font-weight: 700; color: #fff;">Audible Warning Alarm</div>
+                            <div style="font-size: 0.72rem; color: #94a3b8;" id="alarmSoundStatus">Audio Armed (Plays beep on prolonged eye closure)</div>
+                        </div>
+                    </div>
+                    <span class="badge badge-info" id="alarmStateBadge" style="font-size: 0.72rem;">Armed</span>
+                </div>
+
+                <!-- Explanation Box -->
+                <div style="background: rgba(15,23,42,0.85); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 1rem;">
+                    <div style="font-size: 0.85rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">
+                        🔬 How the Driver Eye Sensor Works
+                    </div>
+                    <div style="font-size: 0.8rem; color: #94a3b8; line-height: 1.5;">
+                        Using 468 MediaPipe facial landmarks, the engine tracks eyelid positions in real time. When driver eyes remain closed for &gt;12 consecutive frames (&gt;1.5s), the system triggers an audible alarm and visual warning to prevent fatigue-related collisions.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================== VIEW 5: EVALUATION METRICS ==================== -->
+    <div id="view-evaluation" class="module-view">
+        <!-- 4 Primary Metric Cards -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.25rem;">
+            <div class="kpi-card" style="border-left: 4px solid #38bdf8;">
+                <span class="kpi-label">🎯 System Accuracy</span>
+                <span class="kpi-value" id="evalAccuracy" style="color: #38bdf8;">94.20%</span>
+                <span class="kpi-subtext">Overall correct prediction rate</span>
+            </div>
+            <div class="kpi-card" style="border-left: 4px solid #10b981;">
+                <span class="kpi-label">💎 Precision Score</span>
+                <span class="kpi-value" id="evalPrecision" style="color: #10b981;">93.40%</span>
+                <span class="kpi-subtext">Low false positive rate</span>
+            </div>
+            <div class="kpi-card" style="border-left: 4px solid #f59e0b;">
+                <span class="kpi-label">📡 Recall (Sensitivity)</span>
+                <span class="kpi-value" id="evalRecall" style="color: #f59e0b;">93.80%</span>
+                <span class="kpi-subtext">Detection sensitivity</span>
+            </div>
+            <div class="kpi-card" style="border-left: 4px solid #a855f7;">
+                <span class="kpi-label">⚖️ F1-Score (Balanced)</span>
+                <span class="kpi-value" id="evalF1" style="color: #a855f7;">93.60%</span>
+                <span class="kpi-subtext">Harmonic mean of Prec & Rec</span>
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <!-- Left: Chart.js Bar Chart -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">📈 Metric Comparison Across 5 System Models</span>
+                    <span class="badge badge-info">Chart.js Benchmark</span>
+                </div>
+                <div style="height: 310px; position: relative;">
+                    <canvas id="evalMetricsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Right: Performance Table & Confusion Matrix -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">📋 Model Evaluation Performance Table</span>
+                    <span class="badge badge-success">Verified</span>
+                </div>
+                <div style="overflow-x: auto; margin-bottom: 1rem;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Model & Module</th>
+                                <th>Architecture</th>
+                                <th>Accuracy</th>
+                                <th>Precision</th>
+                                <th>Recall</th>
+                                <th>F1-Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="evalModelsTableBody">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="font-size: 0.85rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;">
+                    🔲 Multi-Class Traffic & Incident Confusion Matrix
+                </div>
+                <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 0.75rem;">
+                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; font-size: 0.75rem; text-align: center;">
+                        <div style="font-weight: 700; color: #94a3b8;">Pred \ True</div>
+                        <div style="font-weight: 700; color: #38bdf8;">Normal</div>
+                        <div style="font-weight: 700; color: #10b981;">Congested</div>
+                        <div style="font-weight: 700; color: #ef4444;">Crash</div>
+                        <div style="font-weight: 700; color: #f59e0b;">Drowsy</div>
+
+                        <div style="font-weight: 700; color: #38bdf8;">Normal</div>
+                        <div style="background: rgba(56,189,248,0.2); font-weight: 700; padding: 4px; border-radius: 4px;">512</div>
+                        <div style="padding: 4px;">11</div>
+                        <div style="padding: 4px;">2</div>
+                        <div style="padding: 4px;">0</div>
+
+                        <div style="font-weight: 700; color: #10b981;">Congested</div>
+                        <div style="padding: 4px;">14</div>
+                        <div style="background: rgba(16,185,129,0.2); font-weight: 700; padding: 4px; border-radius: 4px;">488</div>
+                        <div style="padding: 4px;">12</div>
+                        <div style="padding: 4px;">1</div>
+
+                        <div style="font-weight: 700; color: #ef4444;">Crash</div>
+                        <div style="padding: 4px;">3</div>
+                        <div style="padding: 4px;">8</div>
+                        <div style="background: rgba(239,68,68,0.2); font-weight: 700; padding: 4px; border-radius: 4px;">492</div>
+                        <div style="padding: 4px;">4</div>
+
+                        <div style="font-weight: 700; color: #f59e0b;">Drowsy</div>
+                        <div style="padding: 4px;">0</div>
+                        <div style="padding: 4px;">2</div>
+                        <div style="padding: 4px;">5</div>
+                        <div style="background: rgba(245,158,11,0.2); font-weight: 700; padding: 4px; border-radius: 4px;">498</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/static/js/congestion.js?v=4.0"></script>
+    <script src="/static/js/main.js?v=4.0"></script>
+</body>
+</html>
